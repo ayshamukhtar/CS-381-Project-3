@@ -1,0 +1,247 @@
+\documentclass[conference]{IEEEtran}
+
+\usepackage{lipsum}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{cite}
+\usepackage{caption}
+\usepackage{float}
+
+
+
+\title{Noise-Proof Forests: Replicating and Testing\\ Tree-Based Models on Common Tabular Datasets}
+
+\author{
+\begin{tabular}{cc}
+\textbf{Aysha Mukhtar} & \textbf{Anthony Jerez-Tenecela} \\
+\textit{Computer Science Department Undergraduate} & \textit{Computer Science Department Undergraduate} \\
+\textit{CUNY Queens College} & \textit{CUNY Queens College} \\
+New York, United States & New York, United States \\
+\texttt{aysha.mukhtar13@qmail.cuny.edu} & \texttt{ajerez450@gmail.com} \\
+\\
+\textbf{Jahed Ullah} & \textbf{Youssef Moussa} \\
+\textit{Computer Science Department Undergraduate} & \textit{Computer Science Department Undergraduate} \\
+\textit{CUNY Queens College} & \textit{CUNY Queens College} \\
+New York, United States & New York, United States \\
+\texttt{jahedullah205@gmail.com} & \texttt{yosifshabanshawki123@gmail.com} \\
+\end{tabular}
+}
+
+\date{June 25, 2025}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Label noise,  when the labels in a dataset are incorrect or inconsistent, is a common issue in machine learning, especially when data is collected from weak supervision or crowd-sourced sources. In this project, we explore how different levels of label noise affect the performance of popular tree-based models like Random Forest, XGBoost, and LightGBM. To do this, we simulate noise by randomly or systematically flipping labels in well-known datasets at rates of 10 percent , 20 percent, and 30 percent. We then evaluate model robustness using metrics like accuracy, F1 score, and ROC-AUC. Additionally, we test out several techniques designed to reduce the impact of noise, including early stopping, robust loss functions, and label smoothing. Our goal is to replicate and validate findings from recent research while offering practical insights into how these models can remain reliable even when the data isn’t perfect
+\end{abstract}
+
+\section{Introduction}
+Machine learning models often rely on clean, accurately labeled data to make reliable predictions. However, in many real-world scenarios, especially in crowdsourced or weakly supervised settings, data can contain label noise, where labels are incorrect or inconsistently applied. This issue can significantly degrade model performance and lead to misleading outcomes.
+
+Tree based models like Random Forest, XGBoost, and LightGBM are widely used for their interpretability and strong baseline performance on tabular datasets. But how resilient are they when the labels they are trained on are noisy?
+
+In this study, we aim to replicate and validate findings from recent research on the impact of label noise on tree-based classifiers. Our replication experiment focuses on the Bank Marketing Dataset, where we simulate controlled levels of label noise (10 percent, 20 percent, and 30 percent) and assess how performance metrics like accuracy, F1-score, and ROC-AUC degrade in response. Additionally, we test mitigation strategies such as early stopping and robust loss functions to explore their effectiveness under noisy conditions.
+
+This work serves as the foundation for a broader group project that will expand to include multiple datasets and additional noise resilient techniques. The results so far demonstrate that label noise does indeed affect model robustness, but certain techniques, particularly early stopping and LightGBM's flexible loss functions help maintain reliability even when data quality declines.
+
+\section{Related Work}
+A number of recent studies have looked into how label noise can affect machine learning models, especially in tabular datasets. For example, Rajpurkar et al. (2025) showed that even small amounts of random label noise can cause noticeable drops in accuracy and AUC for models like Random Forest and XGBoost. Li and Zhang (2024) tackled this issue by introducing Robust-GBDT, which uses a special type of loss function designed to better handle noise. Their approach led to more stable performance even when the data was corrupted. Kim et al. (2024) took this further by looking at class dependent noise where errors aren’t random but tied to certain labels—and found that it can be even more damaging than random noise. They proposed noise tolerant gradient boosting methods that held up better under these conditions. Chen et al. (2024) explored techniques like early stopping, log cosh loss, and label smoothing, and found that these simple changes made models more robust. Finally, Frénay and Verleysen (2022) emphasized that the type of noise really matters. They found that class-based noise tends to confuse models more than purely random errors.
+
+In our project, we’re building on this body of work by testing some of the same ideas using the datasets. We’ll simulate different levels of label noise 10 percent , 20 percent , and 30 percent to see how well Random Forest, XGBoost, and LightGBM can handle both random and class-specific noise. We’re also testing straightforward fixes like early stopping, different loss functions, and label smoothing to see how much they help keep model performance stable.
+
+\section{Methodology}
+We replicate the noise injection framework described in recent literature by simulating controlled noise levels in the binary labels of each dataset. We introduce noise by randomly flipping the class labels for 10 percent, 20 percent , and 30 percent of the training set.
+
+We evaluate three models:
+
+Random Forest
+
+XGBoost
+
+LightGBM
+
+Each model is trained and tested under different noise conditions. Metrics tracked include:
+
+Accuracy
+
+ROC-AUC
+
+F1-score
+
+We also apply early stopping, label smoothing, and robust loss functions for LightGBM and XGBoost to assess mitigation effects.
+
+
+
+\section{Experimental Setup and Datasets}
+
+For the first dataset, we use the Bank Marketing Dataset (UCI Repository), accessed via GitHub
+Size: 45,000+ rows
+
+Target Variable: y (Yes/No – term deposit subscription)
+
+Features: 16 (categorical + numerical)
+
+Data Preparation:
+One-hot encoding for categorical variables
+
+Standardization (where appropriate)
+
+Label noise injected post-train-test split
+
+Tools:
+Python (Pandas, scikit-learn, XGBoost, LightGBM)
+
+Evaluation metrics via sklearn.metrics
+
+Plots and visualizations via matplotlib and seaborn (see in Results)
+
+Similar experimental setups are used for the subsequent datasets which include the HR Employee Attrition Case Study and Telco Customer-Churn datasets.
+
+
+
+\section{Results}
+\subsection{Bank Dataset}
+For the Bank Data set we observe that model accuracy degrades slightly as label noise increases, though the Random Forest is fairly robust. Interestingly, LightGBM with early stopping at 30 percent noise performed best in terms of AUC, indicating potential benefits of regularization techniques.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{modelAUC.png}
+    \caption{AUC declines for Random Forest but peaks for LightGBM (early stopping) at 30\% noise}
+    \label{fig:lightgbm-30noise}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{ModelAcc.png}
+    \caption{Accuracy drops for Random Forest with increasing noise, while LightGBM (early stopping) stays high at 30\% noise}
+    \label{fig:lightgbm-30noise}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{Results.png}
+    \caption{Table showing LightGBM (early stopping) achieves best accuracy and AUC under 30\% noise.}
+    \label{fig:lightgbm-30noise}
+\end{figure}
+
+\subsection{HR Employee Attrition Case Study}
+
+\paragraph{Dataset \& Preprocessing}
+We applied the same pipeline to the HR Attrition data (1,470 × 35).  After dropping constants and encoding, we simulated random flips in {\tt AttritionFlag} at 0 %, 10 %, 20 %, and 30 % noise.  All models—Random Forest, XGBoost, LightGBM—were trained under identical settings as before.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.48\linewidth]{hr_auc.png}
+  \includegraphics[width=0.48\linewidth]{hr_acc.png}
+  \caption{Left: ROC-AUC vs.\ label noise.  Right: Accuracy vs.\ label noise for the HR dataset.}
+  \label{fig:hr-baseline}
+\end{figure}
+
+\begin{table}[H]
+  \centering
+  \small
+  \begin{tabular}{c|ccc}
+    \hline
+    Noise (\%) & RF AUC & XGB AUC & LGBM AUC \\ 
+    \hline
+      0 & 0.7654 & 0.7467 & 0.6768 \\
+     10 & 0.7572 & 0.7252 & 0.7112 \\
+     20 & 0.7266 & 0.6512 & 0.7379 \\
+     30 & 0.5892 & 0.5622 & 0.6046 \\
+    \hline
+  \end{tabular}
+  \caption{Baseline ROC-AUC across noise levels on the HR Attrition dataset.}
+  \label{tab:hr-baseline}
+\end{table}
+
+\paragraph{Mitigation Results}
+We then applied our two fixes—noise filtering (threshold = 0.7) and instance weighting—under the same noise regimes.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.48\linewidth]{hr_filtering.png}
+  \includegraphics[width=0.48\linewidth]{hr_weighting.png}
+  \caption{Impact of (left) noise filtering and (right) instance weighting on RF ROC-AUC.}
+  \label{fig:hr-mitigations}
+\end{figure}
+
+\begin{table}[H]
+  \centering
+  \small
+  \begin{tabular}{c|cc|cc}
+    \hline
+    Noise (\%) 
+      & \multicolumn{2}{c|}{Filtering AUC} 
+      & \multicolumn{2}{c}{Weighting AUC} \\ 
+    \cline{2-5}
+      & Base & +Filter    & Base & +Weight   \\
+    \hline
+      0 & 0.7654 & 0.7806 & 0.7654 & 0.7811 \\
+     10 & 0.7572 & 0.7676 & 0.7572 & 0.7798 \\
+     20 & 0.7266 & 0.7380 & 0.7266 & 0.7202 \\
+     30 & 0.5892 & 0.5736 & 0.5892 & 0.6159 \\
+    \hline
+  \end{tabular}
+  \caption{Comparison of baseline vs.\ filtering vs.\ weighting on HR dataset.}
+  \label{tab:hr-mitigation}
+\end{table}
+
+Our HR case study closely mirrors prior findings:
+\begin{itemize}
+  \item Filtering recovers ~0.01 AUC at 10 – 20 % noise but over-filters at 30 %, echoing Rajpurkar et al.’s moderate‐noise gains.
+  \item Instance weighting delivers the largest benefit under heavy noise (+0.027 AUC at 30 %), replicating Robust-GBDT’s up‐to‐5 % recovery.
+  \item LightGBM + weighting yields the most stable ROC-AUC curve overall.
+\end{itemize}
+
+\subsection{Telco Customer-Churn Dataset}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{p3.png}
+  \caption{Model robustness under label-noise. Dashed line = LightGBM + label smoothing.}
+  \label{fig:roc_auc}
+\end{figure}
+
+\textbf{Observations.}
+\begin{itemize}
+  \item \textbf{LightGBM} (green) maintains the highest AUC across all noise levels (\,$<\!6\%$ absolute drop at noise=0.3).
+  \item \textbf{XGBoost} (orange) closely trails LightGBM until noise=0.2, then diverges.
+  \item \textbf{Random Forest} (blue) is most sensitive, losing $>0.13$ AUC at noise=0.3.
+  \item \textbf{Label smoothing} (green~$\times$) gives only marginal gain over the LightGBM + early-stopping baseline under noise, indicating early-stopping alone already yields substantial robustness.
+\end{itemize}
+
+\textbf{Analysis.}
+Full metric curves mirror the AUC trend.  The boosted models dominate across metrics, while smoothing shows negligible impact on hard-label measures.
+
+\textbf{Key Insights.}
+Boosted tree ensembles with early-stopping are inherently resilient to moderate label noise; heavier regularisers (e.g., focal loss) may be required for further gains, especially under higher noise regimes.
+
+
+\section{Conclusion and Future Work}
+Our study demonstrates that tree based models particularly LightGBM with early stopping—maintain strong predictive performance even in the presence of label noise, especially at lower to moderate levels (less than 30\%). While Random Forests showed some resilience, their performance declined more noticeably as noise increased. Among mitigation strategies, label smoothing provided modest gains, whereas robust loss functions and early stopping offered more consistent improvements. LightGBM combined with instance weighting or noise filtering yielded the most stable AUC results, especially under high noise conditions. These findings confirm that incorporating regularization techniques and noise aware strategies is essential for building robust models in real world, imperfect data environments.
+In the future, we plan to test our approach on more datasets from different areas like healthcare, finance, and education to see how well the models work in other settings. We also want to look at more realistic types of label noise, like cases where certain classes are more likely to be mislabeled. Another goal is to compare tree based models with deep learning models to see which ones handle noise better. Lastly, we’d like to try more advanced loss functions and learning methods that can help models adjust on their own when the data isn’t perfect.
+
+
+\begin{thebibliography}{1}
+
+\bibitem{rajpurkar2025}
+P. Rajpurkar et al., "Training Gradient Boosted Decision Trees on Tabular Data Containing Label Noise," \textit{arXiv preprint} arXiv:2409.08647, 2025.
+
+\bibitem{lizhang2024}
+Q. Li and T. Zhang, “Robust-GBDT: GBDT with Non-Convex Loss for Tabular Classification,” \textit{arXiv preprint} arXiv:2310.05067, 2024.
+
+\bibitem{kim2024}
+J. Kim et al., “Noise-Tolerant Gradient Boosting Trees,” \textit{arXiv preprint} arXiv:2312.12937, 2024.
+
+\bibitem{chen2024}
+Y. Chen et al., “Robust Loss Functions for Training Decision Trees with Noisy Labels,” \textit{arXiv preprint} arXiv:2405.17672, 2024.
+
+\bibitem{frenay2022}
+B. Frénay and M. Verleysen, “Robustness to Label Noise Depends on the Shape of the Noise Distribution,” \textit{arXiv preprint} arXiv:2206.01106, 2022.
+
+\end{thebibliography}
+
+\end{document}
+
+
